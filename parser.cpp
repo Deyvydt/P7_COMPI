@@ -308,19 +308,31 @@ Exp* Parser::parseFactor() {
         }
         return new IdExp(nombre);
     }
-    else if (match(Token::MIN) || match(Token::MAX) || match(Token::COUNT)) {
-        // min / max / count '(' CExp (',' CExp)* ')'
-        Token::Type kind = previous->type;          // cuál de las tres palabras fue
-        string nombre = previous->text;
-        if (!match(Token::LPAREN)) throw runtime_error("Error sintáctico: se esperaba '(' tras " + nombre);
+    else if (match(Token::MIN)) {               // min '(' CExp ',' CExp (',' CExp)* ')'
+        if (!match(Token::LPAREN)) throw runtime_error("Error sintáctico: se esperaba '(' tras min");
         vector<Exp*> args;
         do {
-            args.push_back(parseCExp());            // lee una expresión
-        } while (match(Token::COMMA));              // mientras haya comas, sigue leyendo
-        if (!match(Token::RPAREN)) throw runtime_error("Error sintáctico: se esperaba ')' en " + nombre);
-        // La cantidad de argumentos la revisa el TypeChecker
-        if (kind == Token::MIN) return new MinExp(args);
-        if (kind == Token::MAX) return new MaxExp(args);
+            args.push_back(parseCExp());
+        } while (match(Token::COMMA));
+        if (!match(Token::RPAREN)) throw runtime_error("Error sintáctico: se esperaba ')'");
+        return new MinExp(args);
+    }
+    else if (match(Token::MAX)) {               // max '(' CExp ',' CExp (',' CExp)* ')'
+        if (!match(Token::LPAREN)) throw runtime_error("Error sintáctico: se esperaba '(' tras max");
+        vector<Exp*> args;
+        do {
+            args.push_back(parseCExp());
+        } while (match(Token::COMMA));
+        if (!match(Token::RPAREN)) throw runtime_error("Error sintáctico: se esperaba ')'");
+        return new MaxExp(args);
+    }
+    else if (match(Token::COUNT)) {             // count '(' CExp (',' CExp)* ')'
+        if (!match(Token::LPAREN)) throw runtime_error("Error sintáctico: se esperaba '(' tras count");
+        vector<Exp*> args;
+        do {
+            args.push_back(parseCExp());
+        } while (match(Token::COMMA));
+        if (!match(Token::RPAREN)) throw runtime_error("Error sintáctico: se esperaba ')'");
         return new CountExp(args);
     }
     else if (match(Token::IFEXP)) {

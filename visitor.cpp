@@ -449,27 +449,31 @@ Type TypeChecker::visit(FCallExp* exp) {
     return tipoDe(f->tipo);
 }
 
-// min(e1, ..., en) y max(e1, ..., en): al menos 2 operandos, todos válidos y de tipo int -> int
-static void revisarMinMax(TypeChecker* tc, const vector<Exp*>& args, const string& nombre) {
-    if (args.size() < 2) {
-        error(nombre + " requiere al menos dos operandos, pero recibió " + to_string(args.size()));
+// min(e1, ..., en): al menos 2 operandos, todos válidos y de tipo int -> int
+Type TypeChecker::visit(MinExp* exp) {
+    if (exp->args.size() < 2) {
+        error("min requiere al menos dos operandos, pero recibió " + to_string(exp->args.size()));
     }
-    for (size_t i = 0; i < args.size(); i++) {
-        Type t = args[i]->accept(tc);             // valida la subexpresión y obtiene su tipo
+    for (size_t i = 0; i < exp->args.size(); i++) {
+        Type t = exp->args[i]->accept(this);
         if (!t.isInt()) {
-            error("el argumento " + to_string(i + 1) + " de " + nombre
-                  + " debe ser int, pero es " + t.kindName());
+            error("el argumento " + to_string(i + 1) + " de min debe ser int, pero es " + t.kindName());
         }
     }
-}
-
-Type TypeChecker::visit(MinExp* exp) {
-    revisarMinMax(this, exp->args, "min");
     return Type(0);                               // int
 }
 
+// max(e1, ..., en): al menos 2 operandos, todos válidos y de tipo int -> int
 Type TypeChecker::visit(MaxExp* exp) {
-    revisarMinMax(this, exp->args, "max");
+    if (exp->args.size() < 2) {
+        error("max requiere al menos dos operandos, pero recibió " + to_string(exp->args.size()));
+    }
+    for (size_t i = 0; i < exp->args.size(); i++) {
+        Type t = exp->args[i]->accept(this);
+        if (!t.isInt()) {
+            error("el argumento " + to_string(i + 1) + " de max debe ser int, pero es " + t.kindName());
+        }
+    }
     return Type(0);                               // int
 }
 
