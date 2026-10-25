@@ -1,0 +1,5 @@
+a.out
+*.out
+inputs/*_tokens.txt
+inputs/*_salida.txt
+inputs/*.s
